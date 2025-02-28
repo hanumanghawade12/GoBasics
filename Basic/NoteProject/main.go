@@ -7,7 +7,21 @@ import (
 	"strings"
 
 	"github.com/NoteProject/note"
+	"github.com/NoteProject/todo"
 )
+
+type saver interface {
+	Save() error
+}
+
+// type displayer interface {
+// 	Display()
+// }
+
+type outputabble interface {
+	saver
+	Display()
+}
 
 func getNoteData() (string, string, error) {
 	title := getUserInput("Content Title : ")
@@ -18,23 +32,41 @@ func getNoteData() (string, string, error) {
 
 func main() {
 	title, description, err := getNoteData()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	textdata := getUserInput("Enter text: ")
+	text, err := todo.New(textdata)
 	note, err := note.New(title, description)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	note.Display()
-	err = note.Save()
+	err = outputData(text)
 	if err != nil {
-		fmt.Println("error saving note: ", err)
 		return
 	}
+
+	err = outputData(note)
+}
+
+func outputData(s outputabble) error {
+	s.Display()
+	err := s.Save()
+	if err != nil {
+		fmt.Println("error saving note: ", err)
+		return err
+	}
 	fmt.Println("Note saved successfully")
+	return nil
+}
+
+func saveData(s saver) error {
+	err := s.Save()
+	if err != nil {
+		fmt.Println("error saving note: ", err)
+		return err
+	}
+	fmt.Println("Note saved successfully")
+	return nil
 }
 
 func getUserInput(prompt string) string {
