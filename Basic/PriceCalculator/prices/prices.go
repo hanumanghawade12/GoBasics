@@ -28,7 +28,7 @@ func (job *TaxIncludedPriceJob) LoadData() {
 	job.InputPrices = prices
 }
 
-func (job *TaxIncludedPriceJob) Process() {
+func (job *TaxIncludedPriceJob) Process(done chan bool) {
 	job.LoadData()
 	result := make(map[string]string)
 	for _, priceValue := range job.InputPrices {
@@ -37,6 +37,7 @@ func (job *TaxIncludedPriceJob) Process() {
 	}
 	job.TaxIncludedPrices = result
 	job.IOManager.WriteResult(job)
+	done <- true
 }
 
 func NewTaxIncludedPriceJob(fm filemanager.FileManager, taxRate float64) *TaxIncludedPriceJob {
